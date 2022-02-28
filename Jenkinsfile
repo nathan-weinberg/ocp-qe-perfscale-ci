@@ -50,15 +50,15 @@ pipeline {
       steps{
         script{
           if(params.SCALE_UP.toInteger() > 0) {
-            build job: 'scale-ci/e2e-benchmarking-multibranch-pipeline/cluster-workers-scaling', parameters: [string(name: 'BUILD_NUMBER', value: BUILD_NUMBER), string(name: 'WORKER_COUNT', value: SCALE_UP), string(name: 'JENKINS_AGENT_LABEL', value: JENKINS_AGENT_LABEL)]
+            build job: 'scale-ci/e2e-benchmarking-multibranch-pipeline/cluster-workers-scaling', parameters: [string(name: 'BUILD_NUMBER', value: BUILD_NUMBER), string(name: 'WORKER_COUNT', value: SCALE_UP), text(name: "ENV_VARS", value: ENV_VARS), string(name: 'JENKINS_AGENT_LABEL', value: JENKINS_AGENT_LABEL)]
           }
         }
         deleteDir()
         checkout([
           $class: 'GitSCM', 
-          branches: [[name: '*/master']], 
-          doGenerateSubmoduleConfigurations: false, 
-          userRemoteConfigs: [[url: 'https://github.com/cloud-bulldozer/e2e-benchmarking']
+          branches: [[name: params.E2E_BENCHMARKING_REPO_BRANCH ]],
+          doGenerateSubmoduleConfigurations: false,
+          userRemoteConfigs: [[url: params.E2E_BENCHMARKING_REPO ]
           ]])
 
         copyArtifacts(
