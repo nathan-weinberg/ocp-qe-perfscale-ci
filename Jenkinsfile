@@ -30,8 +30,8 @@ pipeline {
         3.4~3.7: ansible-2.4-extra || ansible-2.3 <br/>
         '''
         )
-        string(name: 'NODE_COUNT', defaultValue: '3', description: 'Number of nodes to be used in your cluster for this workload.')
-        string(name: "PODS_PER_NODE", defaultValue: '150', description: 'Number of pods per node.')
+        string(name: 'NODE_COUNT', defaultValue: '3', description: 'Number of nodes to be used in your cluster for this workload. Should be the number of worker nodes on your cluster')
+        string(name: "PODS_PER_NODE", defaultValue: '250', description: 'Number of pods per node.')
         text(name: 'ENV_VARS', defaultValue: '', description:'''<p>
                Enter list of additional (optional) Env Vars you'd want to pass to the script, one pair on each line. <br>
                e.g.<br>
