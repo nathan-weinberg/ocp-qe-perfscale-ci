@@ -105,7 +105,8 @@ pipeline {
             source venv3/bin/activate
             python --version
             cd ..
-            ./run_serviceip_network_test_fromgit.sh
+            export WORKLOAD=svc2svc
+            ./run.sh
             rm -rf ~/.kube
             '''
           }
