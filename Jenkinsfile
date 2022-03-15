@@ -27,7 +27,8 @@ pipeline {
         3.4~3.7: ansible-2.4-extra || ansible-2.3 <br/>
         '''
         )
-        string(name: 'SERVICE_COUNT', defaultValue: '1000', description: 'Creates n-replicas of an application deployment (hello-openshift) and a service in a single namespace as defined by this environment variable.')
+        string(name: 'SERVICE_COUNT', defaultValue: '1000', description: '''Creates n-replicas of an application deployment (hello-openshift) and a service in a single namespace as defined by this environment variable. <br>
+         Use about 250 services per worker node ''')
         text(name: 'ENV_VARS', defaultValue: '', description:'''<p>
                Enter list of additional (optional) Env Vars you'd want to pass to the script, one pair on each line. <br>
                e.g.<br>
