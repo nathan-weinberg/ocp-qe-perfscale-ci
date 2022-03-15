@@ -107,7 +107,8 @@ pipeline {
             source venv3/bin/activate
             python --version
             cd ..
-            ./run_pod_network_test_fromgit.sh
+            export WORKLOAD=pod2pod
+            ./run.sh
             rm -rf ~/.kube
             '''
           }
