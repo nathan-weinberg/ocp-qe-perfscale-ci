@@ -30,7 +30,8 @@ pipeline {
         3.4~3.7: ansible-2.4-extra || ansible-2.3 <br/>
         '''
         )
-        string(name: 'PODS', defaultValue: '1000', description: 'Creates as many "sleep" pods as configured in this environment variable')
+        string(name: 'PODS', defaultValue: '1000', description: '''Creates as many "sleep" pods as configured in this environment variable <br>
+            Run with 250 pods * number of worker nodes ''')
         text(name: 'ENV_VARS', defaultValue: '', description:'''<p>
                Enter list of additional (optional) Env Vars you'd want to pass to the script, one pair on each line. <br>
                e.g.<br>
