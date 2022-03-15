@@ -109,7 +109,8 @@ pipeline {
             source venv3/bin/activate
             python --version
             cd ..
-            ./run_hostnetwork_network_test_fromgit.sh
+            export WORKLOAD=hostnet
+            ./run.sh
             rm -rf ~/.kube
             '''
           }
