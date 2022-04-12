@@ -1,7 +1,10 @@
 approvers:
 - mffiedler
 - qiliRedHat
+- paigerube14
 reviewers:
+- jogeo
+- nathan-weinberg
 - qiliRedHat
 - mffiedler
 - paigerube14
