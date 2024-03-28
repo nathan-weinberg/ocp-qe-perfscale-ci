@@ -32,7 +32,7 @@ THANOS_URL = ''
 TOKEN = ''
 YAML_FILE = ''
 QUERIES = {}
-RESULTS = {"data": []}
+RESULTS = {"prometheus_data": []}
 DEBUG = False
 JIRA = None
 
@@ -66,8 +66,8 @@ def get_iso_timestamp(unix_timestamp):
     return datetime.datetime.utcfromtimestamp(int(unix_timestamp)).isoformat() + 'Z'
 
 
-def process_query(metric_name, query, raw_data):
-    ''' takes in a Prometheus metric name, query and its successful execution result
+def process_query(uuid, metric_name, query, raw_data):
+    ''' takes in a UUID, Prometheus metric name, query and its successful execution result
         reformats data into format desired for Elasticsearch upload
         returns dict object with post-processed data
     '''
@@ -84,7 +84,7 @@ def process_query(metric_name, query, raw_data):
                 iso_timestamp = get_iso_timestamp(data_point[0])
                 clean_data.append(
                     {
-                        "uuid": UUID,
+                        "uuid": uuid,
                         "metric_name": metric_name,
                         "data_type": "datapoint",
                         "iso_timestamp": iso_timestamp,
@@ -304,6 +304,33 @@ def dump_data_locally(timestamp, partial=False):
     # return if no issues
     return None
 
+def format_data_for_upload():
+    ''' formats the data in RESULTS into a de-normalized payload for elasticsearch
+        returns a de-normalized list
+    '''
+    uuid = None
+    payload = []
+
+    if 'jenkins_env' in RESULTS:
+        payload.append(RESULTS['jenkins_env'])
+        uuid = RESULTS['jenkins_env]['uuid']
+    if 'netobserv_env' in RESULTS:
+        payload.append(RESULTS['netobserv_env'])
+        if uuid is None:
+            uuid = RESULTS['netobserv_env']['uuid']
+        else:
+            assert uuid == RESULTS['netobserv_env']['uuid'], "UUIDs for jenkinsEnv and netobservEnv did not match, data may be malformed"
+    if 'prometheus_data' in RESULTS and len(RESULTS['prometheus_data']) > 0:
+        for item in RESULTS['prometheus_data']:
+            clean_data = process_query(
+                uuid,
+                item['metric_name'],
+                item['query'],
+                item['raw_data']
+            )
+            payload.extend(clean_data)
+
+    return payload
 
 def upload_data_to_elasticsearch():
     ''' uploads captured data in RESULTS dictionary to Elasticsearch
@@ -317,8 +344,9 @@ def upload_data_to_elasticsearch():
         retry_on_timeout=True
     )
 
+    documents = format_data_for_upload()
     start = time.time()
-    for item in RESULTS['data']:
+    for item in documents:
         metric_name = item.get('metric_name')
         if metric_name == 'netobservEnv':
             index = 'prod-netobserv-operator-metadata'
@@ -485,18 +513,17 @@ def main():
 
     # get jenkins env data if applicable
     if JENKINS_SERVER is not None:
-        RESULTS["data"].append(get_jenkins_env_info())
+        RESULTS["jenkins_env"] = get_jenkins_env_info()
 
     # get netobserv env data
-    RESULTS["data"].append(get_netobserv_env_info())
+    RESULTS["netobserv_env"] = get_netobserv_env_info()
 
     # get prometheus data
     for entry in QUERIES:
         metric_name = entry['metricName']
         query = entry['query']
         raw_data = run_query(metric_name, query)
-        clean_data = process_query(metric_name, query, raw_data)
-        RESULTS["data"].extend(clean_data)
+        RESULTS["prometheus_data"].append({"raw_data": raw_data, "query" : query, "metric_name" : metric_name})
 
     # log success if no issues
     logging.info(f"Data captured successfully")
