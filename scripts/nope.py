@@ -313,7 +313,7 @@ def format_data_for_upload():
 
     if 'jenkins_env' in RESULTS:
         payload.append(RESULTS['jenkins_env'])
-        uuid = RESULTS['jenkins_env]['uuid']
+        uuid = RESULTS['jenkins_env']['uuid']
     if 'netobserv_env' in RESULTS:
         payload.append(RESULTS['netobserv_env'])
         if uuid is None:
